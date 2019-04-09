@@ -25,7 +25,7 @@ exports.register = async function register(request, response, db) {
 exports.login = async function register(request, response, db) {
   try {
     const username = request.body.username
-    const [users, fields] = await db.execute('SELECT * FROM users WHERE username = ?', [username]);
+    const [users, fields] = await db.execute('SELECT id, username, password FROM users WHERE username = ?', [username]);
     if(users.length > 0) {
       const password = crypto.createHash('md5').update(request.body.password).digest("hex")
       //check if passwords match
@@ -34,6 +34,7 @@ exports.login = async function register(request, response, db) {
         const token = jwt.sign({ id: users[0].id }, config.secret, {
           expiresIn: 600 // expires in 10 minutes
         })
+        await db.execute('UPDATE users SET auth_token = ? WHERE id = ?', [token, users[0].id])
         return response.status(200).json({"authToken": token})
       } else{
         return response.status(200).json({"Error": "Incorrect password."})
