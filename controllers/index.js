@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken')
 const config = require('../config.json')
 const crypto = require('crypto')
 
-exports.register = async function register(request, response, db) {
+exports.register = async function(request, response, db) {
   try {
     const username = request.body.username
     let msg = ''
@@ -22,7 +22,7 @@ exports.register = async function register(request, response, db) {
   }
 }
 
-exports.login = async function register(request, response, db) {
+exports.login = async function(request, response, db) {
   try {
     const username = request.body.username
     const [users, fields] = await db.execute('SELECT id, username, password FROM users WHERE username = ?', [username]);
