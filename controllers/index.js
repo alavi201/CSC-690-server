@@ -14,7 +14,7 @@ exports.register = async function(request, response, db) {
       const dob = request.body.dob
       await db.execute('INSERT INTO users SET username = ?, password = ?, dob = ?', [username, password, dob])
 
-      // create auth token
+      // create auth token for the user registered
       const [user, field] = await db.execute('SELECT id, username, password FROM users WHERE username = ?', [username]);
 
       //check if passwords match
