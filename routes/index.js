@@ -6,20 +6,22 @@ const postController = require('../controllers/posts')
 const profileController = require('../controllers/profile')
 const { check, validationResult } = require('express-validator/check')
 
-let config = require('../awsConf.json');
-let aws = require('aws-sdk');
-let multer = require('multer');
-let multerS3 = require('multer-s3');
+const config = require('../awsConf.json');
+const aws = require('aws-sdk');
+const multer = require('multer');
+const multerS3 = require('multer-s3');
 
+// config aws
 aws.config.update({
     secretAccessKey: config.secretAccessKey,
     accessKeyId: config.accessKeyId,
     region: config.region
 });
 
-let s3 = new aws.S3();
+const s3 = new aws.S3();
 
-let upload = multer({
+// config aws s3 bucket
+const upload = multer({
     storage: multerS3({
         s3: s3,
         bucket: 'csc690',
@@ -75,10 +77,12 @@ router.post('/createPost', [
   postController.create(req, res, db)  
 })
 
-router.post('/createProfile', upload.single('expImage'), function(req, res, next) {
-    console.log(req.body);
-    console.log(req.file);
-    profileController.create(req, res, next);
+router.post('/createProfile', upload.single('image'), function(req, res, next) {
+  if (req.file) {
+    profileController.create(req, res, db);
+  } else {
+    return res.status(422).json({ "msg": "Please provide an image" });
+  }
 });
 
 module.exports = router
