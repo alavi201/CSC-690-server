@@ -1,12 +1,12 @@
 const jwt = require('jsonwebtoken')
-const config = require('../config.json')
+const config = require('../../config.json')
 const crypto = require('crypto')
 
 exports.register = async function(request, response, db) {
   try {
     const username = request.body.username
     let msg = ''
-    const [users, fields] = await db.execute('SELECT * FROM users WHERE username = ?', [username]);
+    const [users, fields] = await db.execute('SELECT * FROM users WHERE username = ?', [username])
     if(users.length) {
       msg = 'Username already exists'
     } else {
@@ -40,7 +40,7 @@ exports.register = async function(request, response, db) {
 exports.login = async function(request, response, db) {
   try {
     const username = request.body.username
-    const [users, fields] = await db.execute('SELECT id, username, password FROM users WHERE username = ?', [username]);
+    const [users, fields] = await db.execute('SELECT id, username, password FROM users WHERE username = ?', [username])
     if(users.length > 0) {
       const password = crypto.createHash('md5').update(request.body.password).digest("hex")
       //check if passwords match
@@ -61,5 +61,19 @@ exports.login = async function(request, response, db) {
   catch(err) {
     console.log(new Error(err))
     return response.status(500).json({"Error": "Unexpected error occured. Please try again in a while"})
+  }
+}
+
+exports.getUserByToken = async function(token, db) {
+  try {
+    const [users, fields] = await db.execute('SELECT id FROM users WHERE auth_token = ?', [token])
+    if(users[0])
+      return users[0].id
+    else
+      return 0
+  }
+  catch(err) {
+    console.log(new Error(err))
+    return 0
   }
 }

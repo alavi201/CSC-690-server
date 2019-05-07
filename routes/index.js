@@ -1,9 +1,10 @@
 const express = require('express')
 const router = express.Router()
 const db = require('../db')
-const controllers = require('../controllers')
+const userController = require('../controllers/user')
 const postController = require('../controllers/posts')
 const profileController = require('../controllers/profile')
+const searchController = require('../controllers/search')
 const { check, validationResult } = require('express-validator/check')
 
 const config = require('../awsConf.json');
@@ -26,10 +27,10 @@ const upload = multer({
         s3: s3,
         bucket: 'csc690',
         acl: 'public-read',
-        metadata: function (req, file, cb) {
+        metadata: function (request, file, cb) {
             cb(null, {fieldName: 'image'});
         },
-        key: function (req, file, cb) {
+        key: function (request, file, cb) {
             cb(null, Date.now().toString() + ".jpg");
         }
     })
@@ -39,49 +40,61 @@ router.post('/register', [
   check('username', 'Required, must contain only letters and numbers (a-zA-Z)').isAlphanumeric(),
   check('password', 'Minimum length is 8 characters').isLength({ min: 8 }),
   check('dob', 'Must be a valid date in the format YYYY-MM-DD').isISO8601().isLength({ min: 10, max: 10 })
-], function(req, res, next) {
+], function(request, response, next) {
 
-  const errors = validationResult(req);
+  const errors = validationResult(request);
 
   //respond with an error if validation fails
   if (!errors.isEmpty()) {
-    return res.status(422).json({ errors: errors.array() })
+    return response.status(422).json({ errors: errors.array() })
   }
-  controllers.register(req, res, db)  
+  userController.register(request, response, db)  
 })
 
 router.post('/login',[
   check('username', 'Please enter a username').exists(),
   check('password', 'Please enter a password').exists(),
-], function(req, res, next) {
+], function(request, response, next) {
 
-  const errors = validationResult(req);
+  const errors = validationResult(request);
 
   //respond with an error if validation fails
   if (!errors.isEmpty()) {
-    return res.status(422).json({ errors: errors.array() })
+    return response.status(422).json({ errors: errors.array() })
   }
 
-  controllers.login(req, res, db)  
+  userController.login(request, response, db)  
 })
 
 router.post('/createPost', [
   check('authToken', 'Please provide an authentication token').exists(),
   check('text', 'Please provide a message').exists(),
-], function(req, res, next) {
-  const errors = validationResult(req)
+], function(request, response, next) {
+  const errors = validationResult(request)
   //respond with an error if validation fails
   if (!errors.isEmpty()) {
-    return res.status(422).json({ errors: errors.array() })
+    return response.status(422).json({ errors: errors.array() })
   }
-  postController.create(req, res, db)  
+  postController.create(request, response, db)  
 })
 
-router.post('/createProfile', upload.single('image'), function(req, res, next) {
-  if (req.file) {
-    profileController.create(req, res, db);
+router.post('/search', [
+  check('query', 'Please provide a search value').exists(),
+  check('authToken', 'Please provide an authentication token').exists()
+], function(request, response, next) {
+  const errors = validationResult(request)
+  //respond with an error if validation fails
+  if (!errors.isEmpty()) {
+    return response.status(422).json({ errors: errors.array() })
+  }
+  searchController.search(request, response, db)  
+})
+
+router.post('/createProfile', upload.single('image'), function(request, response, next) {
+  if (request.file) {
+    profileController.create(request, response, db);
   } else {
-    return res.status(422).json({ "msg": "Please provide an image" });
+    return response.status(422).json({ "msg": "Please provide an image" });
   }
 });
 
