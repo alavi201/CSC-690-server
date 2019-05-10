@@ -39,7 +39,8 @@ exports.get = async function(request, response, db) {
         const [posts, fields] = await db.execute(`
             SELECT u.id, u.username, u.image_url, p.uuid, p.text, p.created_at 
             FROM users u
-            JOIN posts p on p.user_id = u.id ${whereStr}`, qvals
+            JOIN posts p on p.user_id = u.id ${whereStr}
+            ORDER BY p.id DESC`, qvals
         ) 
         return response.status(200).json({"posts": posts})
     } 
