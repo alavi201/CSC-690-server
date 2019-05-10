@@ -78,6 +78,17 @@ router.post('/createPost', [
   postController.create(request, response, db)  
 })
 
+router.get('/posts', [
+  check('authToken', 'Please provide an authentication token').exists()
+], function(request, response, next) {
+  const errors = validationResult(request)
+  //respond with an error if validation fails
+  if (!errors.isEmpty()) {
+    return response.status(422).json({ errors: errors.array() })
+  }
+  postController.get(request, response, db)  
+})
+
 router.post('/search', [
   check('query', 'Please provide a search value').exists(),
   check('authToken', 'Please provide an authentication token').exists()
