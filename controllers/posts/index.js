@@ -24,7 +24,7 @@ exports.create = async function(request, response, db) {
     }
   }
 
-exports.get = async function(request, response, db) {
+exports.getPosts = async function(request, response, db) {
     try {
         const userId = await userController.getUserByToken(request.body.authToken, db)
         if(!userId) return response.status(400).json({"Error": "Invalid auth token."})
@@ -42,7 +42,29 @@ exports.get = async function(request, response, db) {
             JOIN posts p on p.user_id = u.id ${whereStr}
             ORDER BY p.id DESC`, qvals
         ) 
-        return response.status(200).json({"posts": posts})
+        return response.status(200).json(posts)
+    } 
+    catch(err) {
+        console.log(err)
+        return response.status(500).json({"Error": "Unexpected error occured. Please try again in a while"})
+    }
+}
+
+exports.getFollowedPosts = async function(request, response, db) {
+    try {
+        const userId = await userController.getUserByToken(request.body.authToken, db)
+        if(!userId) return response.status(400).json({"Error": "Invalid auth token."})
+
+        const [posts, fields] = await db.execute(`
+            SELECT u.id, u.username, u.image_url, p.uuid, p.text, p.created_at 
+            FROM users u
+            JOIN posts p on p.user_id = u.id
+            JOIN user_followers uf on uf.follower_id = ?
+            WHERE p.user_id = ? OR p.user_id = uf.user_id
+            GROUP BY p.uuid
+            ORDER BY p.id DESC`, [userId, userId]
+        ) 
+        return response.status(200).json(posts)
     } 
     catch(err) {
         console.log(err)

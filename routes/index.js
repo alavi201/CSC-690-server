@@ -5,6 +5,7 @@ const userController = require('../controllers/user')
 const postController = require('../controllers/posts')
 const profileController = require('../controllers/profile')
 const searchController = require('../controllers/search')
+const followerController = require('../controllers/follower')
 const { check, validationResult } = require('express-validator/check')
 
 const config = require('../awsConf.json');
@@ -78,7 +79,7 @@ router.post('/createPost', [
   postController.create(request, response, db)  
 })
 
-router.get('/posts', [
+router.post('/getPosts', [
   check('authToken', 'Please provide an authentication token').exists()
 ], function(request, response, next) {
   const errors = validationResult(request)
@@ -86,7 +87,18 @@ router.get('/posts', [
   if (!errors.isEmpty()) {
     return response.status(422).json({ errors: errors.array() })
   }
-  postController.get(request, response, db)  
+  postController.getPosts(request, response, db)  
+})
+
+router.post('/getFollowedPosts', [
+  check('authToken', 'Please provide an authentication token').exists()
+], function(request, response, next) {
+  const errors = validationResult(request)
+  //respond with an error if validation fails
+  if (!errors.isEmpty()) {
+    return response.status(422).json({ errors: errors.array() })
+  }
+  postController.getFollowedPosts(request, response, db)  
 })
 
 router.post('/search', [
@@ -105,8 +117,32 @@ router.post('/createProfile', upload.single('image'), function(request, response
   if (request.file) {
     profileController.create(request, response, db);
   } else {
-    return response.status(422).json({ "msg": "Please provide an image" });
+    return response.status(422).json({ "msg": "Please provide an image" })
   }
-});
+})
+
+router.post('/followUser', [
+  check('authToken', 'Please provide an authentication token').exists(),
+  check('followUserId', 'Please provide a user to follow').exists(),
+], function(request, response, next) {
+  const errors = validationResult(request)
+  //respond with an error if validation fails
+  if (!errors.isEmpty()) {
+    return response.status(422).json({ errors: errors.array() })
+  }
+  followerController.follow(request, response, db)  
+})
+
+router.post('/unfollowUser', [
+  check('authToken', 'Please provide an authentication token').exists(),
+  check('unfollowUserId', 'Please provide a user to unfollow').exists(),
+], function(request, response, next) {
+  const errors = validationResult(request)
+  //respond with an error if validation fails
+  if (!errors.isEmpty()) {
+    return response.status(422).json({ errors: errors.array() })
+  }
+  followerController.unfollow(request, response, db)  
+})
 
 module.exports = router
