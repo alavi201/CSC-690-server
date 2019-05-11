@@ -90,7 +90,7 @@ router.post('/getPosts', [
   postController.getPosts(request, response, db)  
 })
 
-router.post('/getFollowerPosts', [
+router.post('/getFollowedPosts', [
   check('authToken', 'Please provide an authentication token').exists()
 ], function(request, response, next) {
   const errors = validationResult(request)
@@ -98,7 +98,7 @@ router.post('/getFollowerPosts', [
   if (!errors.isEmpty()) {
     return response.status(422).json({ errors: errors.array() })
   }
-  postController.getFollowerPosts(request, response, db)  
+  postController.getFollowedPosts(request, response, db)  
 })
 
 router.post('/search', [

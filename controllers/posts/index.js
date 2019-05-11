@@ -50,7 +50,7 @@ exports.getPosts = async function(request, response, db) {
     }
 }
 
-exports.getFollowerPosts = async function(request, response, db) {
+exports.getFollowedPosts = async function(request, response, db) {
     try {
         const userId = await userController.getUserByToken(request.body.authToken, db)
         if(!userId) return response.status(400).json({"Error": "Invalid auth token."})
