@@ -8,9 +8,16 @@ exports.search = async function(request, response, db) {
         let results = {}
         const queryVal = '%'+request.body.query+'%'
         const [users, userFields] = await db.execute(`
-            SELECT id, username, image_url 
-            FROM users 
-            WHERE username like ?`, [queryVal]
+            SELECT u.id, u.username, u.image_url, 
+            CASE
+                WHEN uf.follower_id = ?
+                THEN 1
+                ELSE 0
+            END 
+            AS followed
+            FROM users u
+            LEFT JOIN user_followers uf ON uf.user_id = u.id 
+            WHERE username like ?`, [userId, queryVal]
         ) 
         results['users'] = users
 
