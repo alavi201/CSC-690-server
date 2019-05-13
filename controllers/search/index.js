@@ -20,16 +20,8 @@ exports.search = async function(request, response, db) {
             WHERE username like ?`, [userId, queryVal]
         ) 
         results['users'] = users
-
-        const [posts, postFields] = await db.execute(`
-            SELECT u.id, u.username, u.image_url, p.uuid, p.text, p.created_at 
-            FROM users u
-            JOIN posts p on p.user_id = u.id
-            AND p.text like ? 
-            ORDER BY p.id DESC`, [queryVal]
-        )
-        results['posts'] = posts
-        return response.status(200).json({"results": results})
+        
+        return response.status(200).json(results)
     } 
     catch(err) {
         console.log(err)
