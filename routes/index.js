@@ -113,7 +113,14 @@ router.post('/search', [
   searchController.search(request, response, db)  
 })
 
-router.post('/createProfile', upload.single('image'), function(request, response, next) {
+router.post('/createProfile', upload.single('image'), [
+  check('authToken', 'Please provide an authentication token').exists()
+], function(request, response, next) {
+  const errors = validationResult(request)
+  //respond with an error if validation fails
+  if (!errors.isEmpty()) {
+    return response.status(422).json({ errors: errors.array() })
+  }
   if (request.file) {
     profileController.create(request, response, db);
   } else {

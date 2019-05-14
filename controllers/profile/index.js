@@ -7,7 +7,7 @@ exports.create = async function(request, response, db) {
             WHERE auth_token = ?`, [imageUrl, request.body.authToken]
         );
 
-        return response.status(200).json({"msg": "Suceess"});
+        return response.status(200).json({"msg": "Successfully uploaded profile picture"});
     }
     catch(err) {
         console.log(err);
