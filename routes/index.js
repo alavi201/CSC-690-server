@@ -8,19 +8,19 @@ const searchController = require('../controllers/search')
 const followerController = require('../controllers/follower')
 const { check, validationResult } = require('express-validator/check')
 
-const config = require('../awsConf.json');
-const aws = require('aws-sdk');
-const multer = require('multer');
-const multerS3 = require('multer-s3');
+const config = require('../awsConf.json')
+const aws = require('aws-sdk')
+const multer = require('multer')
+const multerS3 = require('multer-s3')
 
 // config aws
 aws.config.update({
     secretAccessKey: config.secretAccessKey,
     accessKeyId: config.accessKeyId,
     region: config.region
-});
+})
 
-const s3 = new aws.S3();
+const s3 = new aws.S3()
 
 // config aws s3 bucket
 const upload = multer({
@@ -29,13 +29,13 @@ const upload = multer({
         bucket: 'csc690',
         acl: 'public-read',
         metadata: function (request, file, cb) {
-            cb(null, {fieldName: 'image'});
+            cb(null, {fieldName: 'image'})
         },
         key: function (request, file, cb) {
-            cb(null, Date.now().toString() + ".jpg");
+            cb(null, Date.now().toString() + ".jpg")
         }
     })
-});
+})
 
 router.post('/register', [
   check('username', 'Required, must contain only letters and numbers (a-zA-Z)').isAlphanumeric(),
@@ -43,7 +43,7 @@ router.post('/register', [
   check('dob', 'Must be a valid date in the format YYYY-MM-DD').isISO8601().isLength({ min: 10, max: 10 })
 ], function(request, response, next) {
 
-  const errors = validationResult(request);
+  const errors = validationResult(request)
 
   //respond with an error if validation fails
   if (!errors.isEmpty()) {
@@ -57,7 +57,7 @@ router.post('/login',[
   check('password', 'Please enter a password').exists(),
 ], function(request, response, next) {
 
-  const errors = validationResult(request);
+  const errors = validationResult(request)
 
   //respond with an error if validation fails
   if (!errors.isEmpty()) {
@@ -122,10 +122,21 @@ router.post('/createProfile', upload.single('image'), [
     return response.status(422).json({ errors: errors.array() })
   }
   if (request.file) {
-    profileController.create(request, response, db);
+    profileController.create(request, response, db)
   } else {
     return response.status(422).json({ "msg": "Please provide an image" })
   }
+})
+
+router.post('/getProfile', [
+  check('authToken', 'Please provide an authentication token').exists()
+], function(request, response, next) {
+  const errors = validationResult(request)
+  //respond with an error if validation fails
+  if (!errors.isEmpty()) {
+    return response.status(422).json({ errors: errors.array() })
+  }
+  profileController.getProfile(request, response, db)
 })
 
 router.post('/followUser', [
