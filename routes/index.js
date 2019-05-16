@@ -163,4 +163,8 @@ router.post('/unfollowUser', [
   followerController.unfollow(request, response, db)  
 })
 
+router.get('/', function(request, response, next) {
+  return response.status(200).json({"msg": "Success"})
+})
+
 module.exports = router
