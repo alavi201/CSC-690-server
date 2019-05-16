@@ -64,6 +64,21 @@ exports.login = async function(request, response, db) {
   }
 }
 
+exports.logout = async function(request, response, db) {
+    try {
+        const userId = await exports.getUserByToken(request.body.authToken, db)
+        if(!userId) return response.status(400).json({"Error": "Invalid auth token."})
+
+        const [users, fields] = await db.execute(`UPDATE users SET auth_token = null WHERE id = ? `, [userId])
+
+        response.status(200).json("Successfully logged out")
+    }
+    catch(err) {
+        console.log(err)
+        return response.status(500).json({"Error": "Unexpected error occured. Please try again in a while"})
+    }
+}
+
 exports.getUserByToken = async function(token, db) {
   try {
     const [users, fields] = await db.execute('SELECT id FROM users WHERE auth_token = ?', [token])

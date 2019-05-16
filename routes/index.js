@@ -67,6 +67,20 @@ router.post('/login',[
   userController.login(request, response, db)  
 })
 
+router.post('/logout',[
+    check('authToken', 'Please provide an authentication token').exists(),
+], function(request, response, next) {
+
+    const errors = validationResult(request)
+
+    //respond with an error if validation fails
+    if (!errors.isEmpty()) {
+        return response.status(422).json({ errors: errors.array() })
+    }
+
+    userController.logout(request, response, db)
+})
+
 router.post('/createPost', [
   check('authToken', 'Please provide an authentication token').exists(),
   check('text', 'Please provide a message').exists(),

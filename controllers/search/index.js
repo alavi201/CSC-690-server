@@ -20,7 +20,6 @@ exports.search = async function(request, response, db) {
             WHERE username like ?`, [userId, queryVal]
         ) 
         results['users'] = users
-        
         return response.status(200).json(results)
     } 
     catch(err) {
