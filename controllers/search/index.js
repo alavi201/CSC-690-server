@@ -17,7 +17,8 @@ exports.search = async function(request, response, db) {
             AS followed
             FROM users u
             LEFT JOIN user_followers uf ON uf.user_id = u.id 
-            WHERE username like ?`, [userId, queryVal]
+            WHERE username like ?
+            AND u.id <> ?`, [userId, queryVal, userId]
         ) 
         results['users'] = users
         return response.status(200).json(results)
