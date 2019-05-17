@@ -23,11 +23,15 @@ exports.register = async function(request, response, db) {
               expiresIn: 600 // expires in 10 minutes
           })
           await db.execute('UPDATE users SET auth_token = ? WHERE id = ?', [token, userId])
+          await db.execute(`
+            INSERT IGNORE INTO user_followers 
+            SET user_id = ?, follower_id = ?`, [userId, userId])
+          
           msg = 'User created'
 
           return response.status(200).json({"authToken": token})
       } else {
-          return response.status(200).json({"Error": "Username not found"})
+          return response.status(400).json({"Error": "Username not found"})
       }
     }
     return response.status(200).json({"Message": msg})
@@ -52,10 +56,10 @@ exports.login = async function(request, response, db) {
         await db.execute('UPDATE users SET auth_token = ? WHERE id = ?', [token, users[0].id])
         return response.status(200).json({"authToken": token})
       } else{
-        return response.status(200).json({"Error": "Incorrect password."})
+        return response.status(400).json({"Error": "Incorrect password."})
       }
     } else {
-      return response.status(200).json({"Error": "Username not found."})
+      return response.status(400).json({"Error": "Username not found."})
     }
   } 
   catch(err) {
