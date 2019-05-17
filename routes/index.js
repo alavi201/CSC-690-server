@@ -185,4 +185,12 @@ router.get('/loginTest', function(request, response, next) {
   return response.status(200).json({"authToken": "123456"})
 })
 
+router.get('/searchUserTest', function(request, response, next) {
+  return response.status(200).json({
+    "username": "test", 
+    "image_url": "http://www.imageurl.com",
+    "followed": 1
+  })
+})
+
 module.exports = router
