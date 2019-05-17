@@ -193,4 +193,13 @@ router.get('/searchUserTest', function(request, response, next) {
   })
 })
 
+router.get('/fetchPosts', function(request, response, next) {
+  return response.status(200).json({
+    "username": "user", 
+    "uuid": "4e4374f9088d1b836bf0",
+    "text": "text message",
+    "created_at": "2019-05-23"
+  })
+})
+
 module.exports = router
