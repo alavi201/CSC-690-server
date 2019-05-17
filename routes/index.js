@@ -167,4 +167,8 @@ router.get('/', function(request, response, next) {
   return response.status(200).json({"msg": "Success"})
 })
 
+router.get('/loginTest', function(request, response, next) {
+  return response.status(200).json({"authToken": "123456"})
+})
+
 module.exports = router
